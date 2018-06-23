@@ -2,42 +2,38 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
-const int SCREEN_HEIGHT = 480;
-const int SCREEN_WIDTH = 640;
-const int NES_WIDTH = 256;
-const int NES_HEIGHT = 240;
-const int SCREEN_RESOLUTION = 2; // NES Screen Resolution
+void usage()
+{
+    printf("./nes ../rom\n");
+}
 
+const int FRAMERATE = 60;
 int main( int argc, char* argv[])
 {
+    if(argc != 2)
+    {
+        usage();
+        return 0;
+    }
+    SDL_Event e;
+    bool quit = false;
     Graphics* g = new Graphics();
-    SDL_Window* window = NULL;
-    SDL_Surface* screenSurface = NULL;
-    if (SDL_Init( SDL_INIT_VIDEO ) < 0)
-    {
-        printf("SDL Could not initialize! \n");
-        return 0;
-    }
-    window = SDL_CreateWindow("NES EMU", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if(window == NULL)
-    {
-        printf("SDL Window could not be created!\n");
-        return 0;
-    }
-    screenSurface = SDL_GetWindowSurface(window);
-    SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
+    g->init();
 
-    /* Editing individual pixels */
-    for(int i = 0; i < 100; i++)
+    /* Game Loop */
+    while(!quit)
     {
-        for(int j = 0; j < 100; j++)
-            ((int*)screenSurface->pixels)[i + j*SCREEN_WIDTH] = 16711935;
+       while(SDL_PollEvent(&e))
+        {
+            if(e.type == SDL_QUIT)
+                quit = true;
+        }
+       g->update();
+       SDL_Delay(10);// TODO update with frame rate
     }
-    SDL_UpdateWindowSurface(window);
-    SDL_Delay(3000);
+    g->destroy();
 
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+
 
 
     return 0;
